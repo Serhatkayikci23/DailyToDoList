@@ -1,31 +1,27 @@
 using UnityEngine;
-using TMPro; // TextMesh Pro'yu kullanıyoruz
-using UnityEngine.UI; // UI elemanlarını kullanmak için
+using TMPro; 
+using UnityEngine.UI; 
 
 public class ToDoList : MonoBehaviour
 {
-    public TMP_InputField taskInputField; // Görev yazılacak InputField
-    public Button addTaskButton;          // Ekleme Butonu
-    public Transform taskListParent;      // Görevlerin listeleneceği alan (ScrollView'in Content kısmı)
-    public GameObject taskPrefab;         // Görev objesinin prefab'ı (her görev için)
+    public TMP_InputField taskInputField; 
+    public Button addTaskButton;          
+    public Transform taskListParent;     
+    public GameObject taskPrefab;         
 
     void Start()
     {
-        // Ekle butonuna tıklanınca AddTask fonksiyonunu çalıştır
-        addTaskButton.onClick.AddListener(AddTask);
+    addTaskButton.onClick.AddListener(AddTask);
     }
 
-    // Görev ekleme fonksiyonu
     public void AddTask()
     {
-        // Eğer input boşsa işlem yapma
         if (string.IsNullOrWhiteSpace(taskInputField.text)) return;
 
-        // Yeni görev prefab'ını oluştur
         GameObject newTask = Instantiate(taskPrefab, taskListParent);
         Debug.Log("Prefab Created: " + newTask);
 
-        // Görev metnini al ve yerleştir
+       
         TMP_Text taskText = newTask.GetComponentInChildren<TMP_Text>();
         if (taskText == null)
         {
@@ -34,7 +30,7 @@ public class ToDoList : MonoBehaviour
         }
         taskText.text = taskInputField.text;
 
-        // Görevin üstünü çizme Toggle'ını ekle
+        
         Toggle toggle = newTask.GetComponentInChildren<Toggle>();
         if (toggle == null)
         {
@@ -43,7 +39,12 @@ public class ToDoList : MonoBehaviour
         }
         toggle.onValueChanged.AddListener((isChecked) => ToggleTaskCompletion(taskText, isChecked));
 
-        // Görev eklemesini tamamladıktan sonra input field'ı temizle
+
+
+        Button deleteButton = newTask.GetComponentInChildren<Button>(); 
+
+        deleteButton.onClick.AddListener(() => DeleteTask(newTask)); 
+        
         taskInputField.text = string.Empty;
     }
 
@@ -52,11 +53,15 @@ public class ToDoList : MonoBehaviour
     {
         if (isChecked)
         {
-            taskText.fontStyle = FontStyles.Strikethrough; // Üstünü çiz
+            taskText.fontStyle = FontStyles.Strikethrough; 
         }
         else
         {
-            taskText.fontStyle = FontStyles.Normal; // Normal metin
+            taskText.fontStyle = FontStyles.Normal; 
         }
     }
+    public void DeleteTask(GameObject task)
+{
+    Destroy(task);
+}
 }
