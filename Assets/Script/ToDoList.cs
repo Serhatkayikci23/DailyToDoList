@@ -1,62 +1,62 @@
 using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
+using TMPro; // TextMesh Pro'yu kullanıyoruz
+using UnityEngine.UI; // UI elemanlarını kullanmak için
 
 public class ToDoList : MonoBehaviour
 {
-   
-    public TMP_InputField inputField;
+    public TMP_InputField taskInputField; // Görev yazılacak InputField
+    public Button addTaskButton;          // Ekleme Butonu
+    public Transform taskListParent;      // Görevlerin listeleneceği alan (ScrollView'in Content kısmı)
+    public GameObject taskPrefab;         // Görev objesinin prefab'ı (her görev için)
 
-    
-    public GameObject taskItemPrefab;
-
-    public Transform taskListParent;
-
-    public Button addTaskButton;
-
-    private void Start()
+    void Start()
     {
-
-        addTaskButton.onClick.AddListener(CreateTask);
-
+        // Ekle butonuna tıklanınca AddTask fonksiyonunu çalıştır
+        addTaskButton.onClick.AddListener(AddTask);
     }
 
-        private void CreateTask()
+    // Görev ekleme fonksiyonu
+    public void AddTask()
     {
-        string taskText = inputField.text.Trim(); 
+        // Eğer input boşsa işlem yapma
+        if (string.IsNullOrWhiteSpace(taskInputField.text)) return;
 
-        if (string.IsNullOrEmpty(taskText)) return; 
+        // Yeni görev prefab'ını oluştur
+        GameObject newTask = Instantiate(taskPrefab, taskListParent);
+        Debug.Log("Prefab Created: " + newTask);
 
-        
-        GameObject newTask = Instantiate(taskItemPrefab, taskListParent);
-
-        
-        TMP_Text taskTextComponent = newTask.transform.Find("TaskText").GetComponent<TMP_Text>();
-        Toggle completeToggle = newTask.transform.Find("CompleteToggle").GetComponent<Toggle>();
-        Button deleteButton = newTask.transform.Find("DeleteButton").GetComponent<Button>();
-
-       
-        taskTextComponent.text = taskText;
-
-       
-       completeToggle.onValueChanged.AddListener(ToggleChange);
-        void ToggleChange(bool isOn)
-{
-   if (isOn)
-{
-    taskTextComponent.fontStyle = FontStyles.Strikethrough;
-}
-else
-{
-    taskTextComponent.fontStyle = FontStyles.Normal;
-}
-}
-        deleteButton.onClick.AddListener(() =>
+        // Görev metnini al ve yerleştir
+        TMP_Text taskText = newTask.GetComponentInChildren<TMP_Text>();
+        if (taskText == null)
         {
-            Destroy(newTask);
-        });
+            Debug.LogError("TaskText not found in taskPrefab!");
+            return;
+        }
+        taskText.text = taskInputField.text;
 
-        
-        inputField.text = "";
+        // Görevin üstünü çizme Toggle'ını ekle
+        Toggle toggle = newTask.GetComponentInChildren<Toggle>();
+        if (toggle == null)
+        {
+            Debug.LogError("Toggle not found in taskPrefab!");
+            return;
+        }
+        toggle.onValueChanged.AddListener((isChecked) => ToggleTaskCompletion(taskText, isChecked));
+
+        // Görev eklemesini tamamladıktan sonra input field'ı temizle
+        taskInputField.text = string.Empty;
     }
-}   
+
+    // Üstünü çizme fonksiyonu
+    void ToggleTaskCompletion(TMP_Text taskText, bool isChecked)
+    {
+        if (isChecked)
+        {
+            taskText.fontStyle = FontStyles.Strikethrough; // Üstünü çiz
+        }
+        else
+        {
+            taskText.fontStyle = FontStyles.Normal; // Normal metin
+        }
+    }
+}
