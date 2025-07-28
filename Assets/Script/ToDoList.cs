@@ -61,7 +61,8 @@ public class ToDoList : MonoBehaviour
         }
     }
     public void DeleteTask(GameObject task)
-{
-    Destroy(task);
-}
+    {
+        Destroy(task);
+          Debug.Log("Delete Button Clicked!");
+    }
 }

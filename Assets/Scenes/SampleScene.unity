@@ -2509,6 +2509,34 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3077735243744171477, guid: d289d73955ac9a847bde6aec7f84f7fa, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3077735243744171477, guid: d289d73955ac9a847bde6aec7f84f7fa, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3077735243744171477, guid: d289d73955ac9a847bde6aec7f84f7fa, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 67798806}
+    - target: {fileID: 3077735243744171477, guid: d289d73955ac9a847bde6aec7f84f7fa, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3077735243744171477, guid: d289d73955ac9a847bde6aec7f84f7fa, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: DeleteTask
+      objectReference: {fileID: 0}
+    - target: {fileID: 3077735243744171477, guid: d289d73955ac9a847bde6aec7f84f7fa, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: ToDoList, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 3077735243744171477, guid: d289d73955ac9a847bde6aec7f84f7fa, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.GameObject, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 6309189238131876262, guid: d289d73955ac9a847bde6aec7f84f7fa, type: 3}
       propertyPath: m_Name
       value: TaskItem
