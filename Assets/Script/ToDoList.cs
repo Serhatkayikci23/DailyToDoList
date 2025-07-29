@@ -24,7 +24,7 @@ public class ToDoList : MonoBehaviour
     public TMP_Text prefabDateText;
     void Start()
     {
-        // Görevleri yükle
+        
         // Görevleri yükle
         LoadTasks();
         addTaskButton.onClick.AddListener(AddTask);
@@ -72,7 +72,9 @@ public class ToDoList : MonoBehaviour
         {
             dateText.text = DateTime.Now.ToString("dd.MM.yyyy");
         }
-
+ 
+        taskList.Add(taskInputField.text); // Görev metni listeye ekleniyor
+          taskDateList.Add(DateTime.Now.ToString("dd.MM.yyyy")); // Görev tarihi listeye ekleniyor
         // Görev eklemeden önce kaydet
         SaveTasks();
 
@@ -80,13 +82,12 @@ public class ToDoList : MonoBehaviour
     // Görevlerin ve tarihlerin kaydedilmesi
     public void SaveTasks()
     {
-        // Görevleri ve tarihleri JSON formatında kaydediyoruz
         string taskJson = JsonUtility.ToJson(new TaskListWrapper { tasks = taskList, dates = taskDateList });
-
-        // JSON'u PlayerPrefs'te sakla
+        Debug.Log("Saved JSON: " + taskJson);  // Debugging JSON string
         PlayerPrefs.SetString("taskList", taskJson);
         PlayerPrefs.Save();
     }
+
 
     // Kaydedilen görevlerin yüklenmesi
     public void LoadTasks()
