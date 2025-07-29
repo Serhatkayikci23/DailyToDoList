@@ -48,8 +48,8 @@ public class ToDoList : MonoBehaviour
         taskInputField.text = string.Empty;
     }
 
-    // Üstünü çizme fonksiyonu
-    void ToggleTaskCompletion(TMP_Text taskText, bool isChecked)
+    // üstünü çizme toggle işaretleyince
+    public void ToggleTaskCompletion(TMP_Text taskText, bool isChecked)
     {
         if (isChecked)
         {
