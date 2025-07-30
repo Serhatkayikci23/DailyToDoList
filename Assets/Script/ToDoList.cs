@@ -11,155 +11,112 @@ public class ToDoList : MonoBehaviour
     public Transform taskListParent;
     public GameObject taskPrefab;
 
+    public DataManager dataManager; 
 
-
-    // Görevlerin listesini tutmak için
     private List<string> taskList = new List<string>();
-
-    // Görevlerin tarihlerini tutacak bir liste
     private List<string> taskDateList = new List<string>();
 
-
-
-    public TMP_Text prefabDateText;
     void Start()
     {
-        
-        // Görevleri yükle
-        LoadTasks();
         addTaskButton.onClick.AddListener(AddTask);
-
-
+        LoadTasks();
     }
 
     public void AddTask()
     {
         if (string.IsNullOrWhiteSpace(taskInputField.text)) return;
 
+        string taskText = taskInputField.text;
+        string taskDate = DateTime.Now.ToString("dd.MM.yyyy");
+
+        
         GameObject newTask = Instantiate(taskPrefab, taskListParent);
-        Debug.Log("Prefab Created: " + newTask);
 
+       
+        TMP_Text taskTMP = newTask.GetComponentInChildren<TMP_Text>();
+        if (taskTMP != null)
+            taskTMP.text = taskText;
 
-        TMP_Text taskText = newTask.GetComponentInChildren<TMP_Text>();
-        if (taskText == null)
-        {
-            Debug.LogError("TaskText not found in taskPrefab!");
-            return;
-        }
-        taskText.text = taskInputField.text;
+        
+        TMP_Text dateTMP = newTask.transform.Find("DateText")?.GetComponent<TMP_Text>();
+        if (dateTMP != null)
+            dateTMP.text = taskDate;
 
-
-
-
+        
         Toggle toggle = newTask.GetComponentInChildren<Toggle>();
-        if (toggle == null)
+        if (toggle != null)
         {
-            Debug.LogError("Toggle not found in taskPrefab!");
-            return;
+            toggle.onValueChanged.AddListener((isChecked) => ToggleTaskCompletion(taskTMP, isChecked));
         }
-        toggle.onValueChanged.AddListener((isChecked) => ToggleTaskCompletion(taskText, isChecked));
 
-
-
+        
         Button deleteButton = newTask.GetComponentInChildren<Button>();
+        if (deleteButton != null)
+        {
+            deleteButton.onClick.AddListener(() => DeleteTask(newTask, taskText));
+        }
 
-        deleteButton.onClick.AddListener(() => DeleteTask(newTask));
+        
+        taskList.Add(taskText);
+        taskDateList.Add(taskDate);
+        dataManager.SaveTasks(taskList, taskDateList);
 
+       
         taskInputField.text = string.Empty;
-
-        TMP_Text dateText = newTask.transform.Find("DateText")?.GetComponent<TMP_Text>();
-        if (dateText != null)
-        {
-            dateText.text = DateTime.Now.ToString("dd.MM.yyyy");
-        }
- 
-        taskList.Add(taskInputField.text); // Görev metni listeye ekleniyor
-          taskDateList.Add(DateTime.Now.ToString("dd.MM.yyyy")); // Görev tarihi listeye ekleniyor
-        // Görev eklemeden önce kaydet
-        SaveTasks();
-
-    }
-    // Görevlerin ve tarihlerin kaydedilmesi
-    public void SaveTasks()
-    {
-        string taskJson = JsonUtility.ToJson(new TaskListWrapper { tasks = taskList, dates = taskDateList });
-        Debug.Log("Saved JSON: " + taskJson);  // Debugging JSON string
-        PlayerPrefs.SetString("taskList", taskJson);
-        PlayerPrefs.Save();
     }
 
-
-    // Kaydedilen görevlerin yüklenmesi
-    public void LoadTasks()
-    {
-        if (PlayerPrefs.HasKey("taskList"))
-        {
-            string taskJson = PlayerPrefs.GetString("taskList");
-
-            // JSON'u tekrar listeye dönüştür
-            TaskListWrapper taskListWrapper = JsonUtility.FromJson<TaskListWrapper>(taskJson);
-
-            // Yüklenen görevleri ekle
-            for (int i = 0; i < taskListWrapper.tasks.Count; i++)
-            {
-                string task = taskListWrapper.tasks[i];
-                string date = taskListWrapper.dates[i];
-
-                // Prefab oluştur ve görevi ekle
-                GameObject newTask = Instantiate(taskPrefab, taskListParent);
-                TMP_Text taskText = newTask.GetComponentInChildren<TMP_Text>();
-                taskText.text = task;
-
-                TMP_Text dateText = newTask.transform.Find("DateText")?.GetComponent<TMP_Text>();
-                if (dateText != null)
-                {
-                    dateText.text = date;  // Kaydedilen tarihi göster
-                }
-
-                // Toggle ve silme butonlarını yeniden bağla
-                Toggle toggle = newTask.GetComponentInChildren<Toggle>();
-                if (toggle != null)
-                {
-                    toggle.onValueChanged.AddListener((isChecked) => ToggleTaskCompletion(taskText, isChecked));
-                }
-
-                Button deleteButton = newTask.GetComponentInChildren<Button>();
-                deleteButton.onClick.AddListener(() => DeleteTask(newTask));
-            }
-        }
-    }
-
-
-    // üstünü çizme toggle işaretleyince
     public void ToggleTaskCompletion(TMP_Text taskText, bool isChecked)
     {
         if (isChecked)
-        {
             taskText.fontStyle = FontStyles.Strikethrough;
-        }
         else
-        {
             taskText.fontStyle = FontStyles.Normal;
+    }
+
+    public void DeleteTask(GameObject taskObj, string taskText)
+    {
+        int index = taskList.IndexOf(taskText);
+        if (index >= 0)
+        {
+            taskList.RemoveAt(index);
+            taskDateList.RemoveAt(index);
+        }
+        Destroy(taskObj);
+
+        dataManager.SaveTasks(taskList, taskDateList);
+    }
+
+    private void LoadTasks()
+    {
+        var wrapper = dataManager.LoadTasks();
+
+        taskList = wrapper.tasks ?? new List<string>();
+        taskDateList = wrapper.dates ?? new List<string>();
+
+        for (int i = 0; i < taskList.Count; i++)
+        {
+            GameObject newTask = Instantiate(taskPrefab, taskListParent);
+
+            TMP_Text taskTMP = newTask.GetComponentInChildren<TMP_Text>();
+            if (taskTMP != null)
+                taskTMP.text = taskList[i];
+
+            TMP_Text dateTMP = newTask.transform.Find("DateText")?.GetComponent<TMP_Text>();
+            if (dateTMP != null)
+                dateTMP.text = taskDateList[i];
+
+            Toggle toggle = newTask.GetComponentInChildren<Toggle>();
+            if (toggle != null)
+            {
+                toggle.onValueChanged.AddListener((isChecked) => ToggleTaskCompletion(taskTMP, isChecked));
+            }
+
+            Button deleteButton = newTask.GetComponentInChildren<Button>();
+            if (deleteButton != null)
+            {
+                string task = taskList[i]; 
+                deleteButton.onClick.AddListener(() => DeleteTask(newTask, task));
+            }
         }
     }
-
-    public void DeleteTask(GameObject task)
-    {
-        Destroy(task);
-        Debug.Log("Delete Button Clicked!");
-        SaveTasks();
-
-    }
-
-
-
-
-
-}
-// JSON dönüşümü için Wrapper sınıfı
-[System.Serializable]
-public class TaskListWrapper
-{
-    public List<string> tasks;  // Görev metinlerini tutar
-    public List<string> dates;  // Görev tarihlerini tutar
 }
